@@ -59,13 +59,11 @@ class _CalculatorPageState extends State<CalculatorPage> {
             title: Text("Your PIN Code"),
             content: Text("Your PIN code is: $pin"),
             actions: <Widget>[
-            TextButton(
-  child: Text("OK"),
-  onPressed: () {
-    Navigator.of(context).pop();
-  },
-),
-
+              TextButton(
+                child: Text("OK"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
               ),
             ],
           );
