@@ -19,10 +19,12 @@ class Kalk extends StatelessWidget {
   }
 }
 
-class CalculatorPage extends StatefulWidget {
-  @override
-  _CalculatorPageState createState() => _CalculatorPageState();
+class _CalculatorPageState extends State<CalculatorPage> {
+  int equalPressedCounter = 0; // Add this line
+
+  // Rest of the class code...
 }
+
 
 class _CalculatorPageState extends State<CalculatorPage> {
   String expression = '';
@@ -71,33 +73,39 @@ class _CalculatorPageState extends State<CalculatorPage> {
   }
 
   void buttonPressed(String text) {
-    setState(() {
-      if (text == 'C') {
-        expression = '';
-        result = '0';
-      } else if (text == '=') {
-        if (enteredPin == pin) {
-          accessGranted = true;
-        } else {
-          enteredPin = '';
-          try {
-            Parser p = Parser();
-            Expression exp = p.parse(expression);
-            ContextModel cm = ContextModel();
-            result = exp.evaluate(EvaluationType.REAL, cm).toString();
-          } catch (e) {
-            result = 'Error';
-          }
-          expression = '';
-        }
-      } else if (RegExp(r'[0-9]').hasMatch(text) && !accessGranted) {
-        enteredPin += text;
-        expression += text;
+  setState(() {
+    if (text == 'C') {
+      expression = '';
+      result = '0';
+    } else if (text == '=') {
+      if (enteredPin == pin && expression.isEmpty) {
+        accessGranted = true;
       } else {
-        expression += text;
+        enteredPin = '';
+        try {
+          Parser p = Parser();
+          Expression exp = p.parse(expression);
+          ContextModel cm = ContextModel();
+          result = exp.evaluate(EvaluationType.REAL, cm).toString();
+        } catch (e) {
+          result = 'Error';
+        }
+        expression = '';
       }
-    });
-  }
+    } else if (RegExp(r'[0-9]').hasMatch(text) && !accessGranted) {
+      enteredPin += text;
+      expression += text;
+    } else if (text == 'E' && expression.isEmpty && enteredPin == pin) {
+      equalPressedCounter++;
+      if (equalPressedCounter >= 4) {
+        accessGranted = true;
+        enteredPin = '';
+      }
+    } else {
+      expression += text;
+    }
+  });
+}
 
   @override
   Widget build(BuildContext context) {
