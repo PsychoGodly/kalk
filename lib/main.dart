@@ -19,12 +19,10 @@ class Kalk extends StatelessWidget {
   }
 }
 
-class _CalculatorPageState extends State<CalculatorPage> {
-  int equalPressedCounter = 0; // Add this line
-
-  // Rest of the class code...
+class CalculatorPage extends StatefulWidget {
+  @override
+  _CalculatorPageState createState() => _CalculatorPageState();
 }
-
 
 class _CalculatorPageState extends State<CalculatorPage> {
   String expression = '';
@@ -33,79 +31,63 @@ class _CalculatorPageState extends State<CalculatorPage> {
   String enteredPin = '';
   bool pinGenerated = false;
   bool accessGranted = false;
+  int equalPressedCounter = 0;
 
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration.zero, () {
-      showPinGenerationDialog(context);
-    });
+    generatePin();
   }
 
-  Future<void> showPinGenerationDialog(BuildContext context) async {
-    TextEditingController pinController = TextEditingController();
-
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Generate PIN'),
-          content: TextFormField(
-            controller: pinController,
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(labelText: 'Enter PIN (4 digits)'),
-            maxLength: 4,
-          ),
-          actions: <Widget>[
-            ElevatedButton(
-              onPressed: () {
-                pin = pinController.text;
-                pinGenerated = true;
-                Navigator.of(context).pop();
-              },
-              child: Text('Generate'),
-            ),
-          ],
-        );
-      },
-    );
+  void generatePin() {
+    if (!pinGenerated) {
+      Random random = Random();
+      for (int i = 0; i < 4; i++) {
+        pin += random.nextInt(10).toString();
+      }
+      pinGenerated = true;
+      print("Generated PIN: $pin"); // For testing purposes
+    }
   }
 
   void buttonPressed(String text) {
-  setState(() {
-    if (text == 'C') {
-      expression = '';
-      result = '0';
-    } else if (text == '=') {
-      if (enteredPin == pin && expression.isEmpty) {
-        accessGranted = true;
-      } else {
-        enteredPin = '';
-        try {
-          Parser p = Parser();
-          Expression exp = p.parse(expression);
-          ContextModel cm = ContextModel();
-          result = exp.evaluate(EvaluationType.REAL, cm).toString();
-        } catch (e) {
-          result = 'Error';
-        }
+    setState(() {
+      if (text == 'C') {
         expression = '';
+        result = '0';
+      } else if (text == '=') {
+        if (enteredPin == pin && expression.isEmpty) {
+          equalPressedCounter++;
+          if (equalPressedCounter >= 4) {
+            accessGranted = true;
+            enteredPin = '';
+          }
+        } else {
+          enteredPin = '';
+          try {
+            Parser p = Parser();
+            Expression exp = p.parse(expression);
+            ContextModel cm = ContextModel();
+            result = exp.evaluate(EvaluationType.REAL, cm).toString();
+          } catch (e) {
+            result = 'Error';
+          }
+          expression = '';
+        }
+      } else if (RegExp(r'[0-9]').hasMatch(text) && !accessGranted) {
+        enteredPin += text;
+        expression += text;
+      } else if (text == 'E' && expression.isEmpty && enteredPin == pin) {
+        equalPressedCounter++;
+        if (equalPressedCounter >= 4) {
+          accessGranted = true;
+          enteredPin = '';
+        }
+      } else {
+        expression += text;
       }
-    } else if (RegExp(r'[0-9]').hasMatch(text) && !accessGranted) {
-      enteredPin += text;
-      expression += text;
-    } else if (text == 'E' && expression.isEmpty && enteredPin == pin) {
-      equalPressedCounter++;
-      if (equalPressedCounter >= 4) {
-        accessGranted = true;
-        enteredPin = '';
-      }
-    } else {
-      expression += text;
-    }
-  });
-}
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
