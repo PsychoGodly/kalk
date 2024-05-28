@@ -35,7 +35,9 @@ class _CalculatorPageState extends State<CalculatorPage> {
   @override
   void initState() {
     super.initState();
-    showPinGenerationDialog(context);
+    Future.delayed(Duration.zero, () {
+      showPinGenerationDialog(context);
+    });
   }
 
   Future<void> showPinGenerationDialog(BuildContext context) async {
