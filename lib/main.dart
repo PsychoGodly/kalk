@@ -37,6 +37,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
   void initState() {
     super.initState();
     generatePin();
+    showPinPopup();
   }
 
   void generatePin() {
@@ -46,8 +47,31 @@ class _CalculatorPageState extends State<CalculatorPage> {
         pin += random.nextInt(10).toString();
       }
       pinGenerated = true;
-      print("Generated PIN: $pin"); // For testing purposes
     }
+  }
+
+  void showPinPopup() {
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Your PIN Code"),
+            content: Text("Your PIN code is: $pin"),
+            actions: <Widget>[
+            TextButton(
+  child: Text("OK"),
+  onPressed: () {
+    Navigator.of(context).pop();
+  },
+),
+
+              ),
+            ],
+          );
+        },
+      );
+    });
   }
 
   void buttonPressed(String text) {
