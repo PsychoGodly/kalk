@@ -76,11 +76,21 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: buttons.map((button) {
-        return ElevatedButton(
-          onPressed: () => buttonPressed(button),
-          child: Text(
-            button,
-            style: TextStyle(fontSize: 24),
+        return Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: ElevatedButton(
+              onPressed: () => buttonPressed(button),
+              style: ElevatedButton.styleFrom(
+                primary: Colors.grey[800], // background color
+                onPrimary: Colors.white, // foreground color
+                padding: EdgeInsets.all(24),
+              ),
+              child: Text(
+                button,
+                style: TextStyle(fontSize: 24),
+              ),
+            ),
           ),
         );
       }).toList(),
