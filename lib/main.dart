@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:math_expressions/math_expressions.dart';
-
 import 'dart:math';
 
 void main() {
@@ -36,18 +35,37 @@ class _CalculatorPageState extends State<CalculatorPage> {
   @override
   void initState() {
     super.initState();
-    generatePin();
+    showPinGenerationDialog(context);
   }
 
-  void generatePin() {
-    if (!pinGenerated) {
-      Random random = Random();
-      for (int i = 0; i < 4; i++) {
-        pin += random.nextInt(10).toString();
-      }
-      pinGenerated = true;
-      print("Generated PIN: $pin"); // For testing purposes
-    }
+  Future<void> showPinGenerationDialog(BuildContext context) async {
+    TextEditingController pinController = TextEditingController();
+
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Generate PIN'),
+          content: TextFormField(
+            controller: pinController,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(labelText: 'Enter PIN (4 digits)'),
+            maxLength: 4,
+          ),
+          actions: <Widget>[
+            ElevatedButton(
+              onPressed: () {
+                pin = pinController.text;
+                pinGenerated = true;
+                Navigator.of(context).pop();
+              },
+              child: Text('Generate'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void buttonPressed(String text) {
@@ -60,12 +78,11 @@ class _CalculatorPageState extends State<CalculatorPage> {
           accessGranted = true;
         } else {
           enteredPin = '';
-          expression += '=';
           try {
             Parser p = Parser();
             Expression exp = p.parse(expression);
             ContextModel cm = ContextModel();
-            result = '${exp.evaluate(EvaluationType.REAL, cm)}';
+            result = exp.evaluate(EvaluationType.REAL, cm).toString();
           } catch (e) {
             result = 'Error';
           }
